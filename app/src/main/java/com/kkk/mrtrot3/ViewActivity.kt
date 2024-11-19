@@ -39,7 +39,6 @@ import android.widget.Toast
 //import com.facebook.ads.AdSettings
 
 import com.google.android.gms.ads.*
-import com.google.android.gms.ads.R
 import kotlinx.android.synthetic.main.activity_view.*
 import kotlin.concurrent.thread
 
