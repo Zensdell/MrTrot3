@@ -47,7 +47,7 @@ class MyFirebaseMessagingService: FirebaseMessagingService() {
                 .setVibrate(longArrayOf(1000,1000,1000,1000))
                 .setOnlyAlertOnce(true)
                 .setContentIntent(pendingIntent)
-                .setContentTitle("미스트롯3 응원하기")
+                .setContentTitle("미스터트롯3 응원하기")
 
         builder.priority= NotificationCompat.PRIORITY_HIGH
 
