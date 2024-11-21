@@ -75,7 +75,7 @@
                     >
                     <Button
                         android:textSize="18sp"
-                        android:background="#FF40CD"
+                        android:background="#001781"
                         android:id="@+id/change_button"
                         android:textColor="@color/white"
                         android:layout_width="70sp"
