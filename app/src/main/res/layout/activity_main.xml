@@ -24,11 +24,11 @@
             android:layout_width="match_parent"
             android:layout_height="45dp"
             android:textStyle="bold"
-            android:text="미스트롯3 응원하기"
+            android:text="미스터트롯3 응원하기"
             android:gravity="center"
             android:textSize="25sp"
             app:layout_constraintTop_toTopOf="parent"
-            android:background="#FCC7E1"
+            android:background="#4AC3FA"
             android:textColor="@color/white"
             />
 
@@ -46,9 +46,9 @@
                 android:elevation="1dp"
                 android:foregroundGravity="center"
                 app:tabGravity="fill"
-                app:tabIndicatorColor="#FF40CD"
+                app:tabIndicatorColor="#001781"
                 app:tabMode="fixed"
-                app:tabSelectedTextColor="#FF40CD"
+                app:tabSelectedTextColor="#001781"
                 app:tabTextColor="@color/black">
 
                 <com.google.android.material.tabs.TabItem

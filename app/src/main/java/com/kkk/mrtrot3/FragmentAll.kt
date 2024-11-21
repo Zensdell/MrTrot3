@@ -31,7 +31,7 @@ class FragmentAll() : Fragment() {
 
         var adRequest = AdRequest.Builder().build()
 
-        InterstitialAd.load(requireContext(),"//ca-app-pub-824605//50511//87544/891005//9565", adRequest, object : InterstitialAdLoadCallback() {
+        InterstitialAd.load(requireContext(),"ca-app-pub-8246055051187544/2296004233", adRequest, object : InterstitialAdLoadCallback() {
             override fun onAdFailedToLoad(adError: LoadAdError) {
                 Log.d(TAG, adError.toString())
                 mInterstitialAd = null
