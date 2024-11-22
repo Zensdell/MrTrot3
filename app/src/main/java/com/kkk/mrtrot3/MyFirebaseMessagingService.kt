@@ -12,7 +12,7 @@ import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 
-const val channelName="package com.kkk.mrtrot3"
+const val channelName="com.kkk.mrtrot3"
 
 class MyFirebaseMessagingService: FirebaseMessagingService() {
 
@@ -23,7 +23,7 @@ class MyFirebaseMessagingService: FirebaseMessagingService() {
     }
     @SuppressLint("RemoteViewLayout")
     fun getRemoteView (title: String,message: String) : RemoteViews {
-        val remoteView = RemoteViews("package com.kkk.mrtrot3",R.layout.notification)
+        val remoteView = RemoteViews("com.kkk.mrtrot3",R.layout.notification)
 
         remoteView.setTextViewText(R.id.title,title)
         remoteView.setTextViewText(R.id.message,message)
