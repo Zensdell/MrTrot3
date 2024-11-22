@@ -1,5 +1,6 @@
 package com.kkk.mrtrot3
 
+import android.Manifest
 import android.app.AlertDialog
 import android.content.ContentValues
 import android.content.ContentValues.TAG
@@ -12,6 +13,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.google.android.material.tabs.TabLayout
@@ -43,6 +46,8 @@ class MainActivity : FragmentActivity() {
         setContentView(R.layout.activity_main)
         //메인액티비티 뜨자마자 데이터 가져오기
         dataFromFirestore()
+
+        requestNotificationPermission()
     }
 
     private fun checkRemoteConfig() {
@@ -201,5 +206,36 @@ class MainActivity : FragmentActivity() {
             }
     }
 
+
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                    1001
+                )
+            }
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 1001) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "알림 권한이 허용되었습니다.", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "알림 권한이 거부되었습니다.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
 }
