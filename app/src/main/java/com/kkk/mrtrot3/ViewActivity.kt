@@ -436,10 +436,8 @@ class ViewActivity : AppCompatActivity() {
         }
     }
 
+
     private fun admobSetting() {
-
-
-
 
         rewardedAd?.let { ad ->
             ad.show(this, OnUserEarnedRewardListener { rewardItem ->
@@ -462,6 +460,8 @@ class ViewActivity : AppCompatActivity() {
             Log.d(TAG, "The rewarded ad wasn't ready yet.")
 
             // Load ad one more >.< 광고 로드 실패시 로드 한 번 더 시도하기
+
+
             var adRequest = AdRequest.Builder().build()
             RewardedAd.load(this,"ca-app-pub-8246055051187544/5488138194", adRequest, object : RewardedAdLoadCallback() {
                 override fun onAdFailedToLoad(adError: LoadAdError) {
@@ -472,20 +472,22 @@ class ViewActivity : AppCompatActivity() {
                 override fun onAdLoaded(ad: RewardedAd) {
                     Log.d(TAG, "Ad was loaded.")
                     rewardedAd = ad
+
                 }
             })
         }
 
+
         // Load ad one more >.< 그냥 로드 많이 되게.. 광고 봐도 로드 되고
         var adRequest = AdRequest.Builder().build()
-        RewardedAd.load(this,"ca-app-pub-8246055051187544/5488138194", adRequest, object : RewardedAdLoadCallback() {
+        RewardedAd.load(this,"ca-app-pub-8246055051187544/2149869851", adRequest, object : RewardedAdLoadCallback() {
             override fun onAdFailedToLoad(adError: LoadAdError) {
                 Log.d(TAG, adError.toString())
                 rewardedAd = null
             }
 
             override fun onAdLoaded(ad: RewardedAd) {
-                Log.d(TAG, "Ad was loaded.")
+                Log.d("Subreward", "Sub리워드광고 받아옴")
                 rewardedAd = ad
             }
         })
@@ -493,6 +495,8 @@ class ViewActivity : AppCompatActivity() {
 
 
     }
+
+
 
     private fun getCommentsFromFirestore() {
 
