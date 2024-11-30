@@ -8,6 +8,8 @@ import android.content.Intent
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.view.View.*
@@ -45,7 +47,9 @@ import kotlin.concurrent.thread
 class ViewActivity : AppCompatActivity() {
 
     var isLiked=false
+    private var isAdLoading = false
     private var rewardedAd: RewardedAd? = null
+    private var retryCount = 0 // 재시도 횟수
     val cmDataList = mutableListOf<CmData>()
     private lateinit var auth: FirebaseAuth
     private val TAG = "ViewActivity"
@@ -124,20 +128,7 @@ class ViewActivity : AppCompatActivity() {
 
         MobileAds.initialize(this) {}
 
-        var adRequest = AdRequest.Builder().build() //업로드 전 !!!펍코드 꼭 바꿀것!!!!
-        RewardedAd.load(this,"ca-app-pub-8246055051187544/5488138194", adRequest, object : RewardedAdLoadCallback() {
-            override fun onAdFailedToLoad(adError: LoadAdError) {
-                Log.d(TAG, adError.toString())
-                Log.d("애드몹리워드광고로드실패","애드몹 리워드 못 받음")
-                rewardedAd = null
-            }
-
-            override fun onAdLoaded(ad: RewardedAd) {
-                Log.d(TAG, "Ad was loaded.")
-                Log.d("애드몹리워드광고로드","애드몹 리워드 받아오나?")
-                rewardedAd = ad
-            }
-        })
+        loadRewardedAd()
 
         val cmButton = findViewById<ImageButton>(R.id.cmSave)
         cmButton?.setOnClickListener {         // 닉네임이 있는지 없는지 확인하고
@@ -195,6 +186,43 @@ class ViewActivity : AppCompatActivity() {
         // AdSettings.addTestDevice("796e3543-c38d-4b34-a088-f1b238d2cea3")
 
 
+    }
+
+    private fun loadRewardedAd() {
+        if (isAdLoading) return // 광고가 이미 로딩 중이면 중복 로드 방지
+
+        isAdLoading = true
+        val adRequest = AdRequest.Builder().build()
+
+        // 광고 로드
+        RewardedAd.load(this, "ca-app-pub-8246055051187544/5488138194", adRequest, object : RewardedAdLoadCallback() {
+            override fun onAdFailedToLoad(adError: LoadAdError) {
+                Log.d(TAG, "광고 로드 실패: ${adError.message}")
+                rewardedAd = null
+                isAdLoading = false
+                if (retryCount < 3) { // 재시도 횟수 제한
+                    retryCount++
+                    retryLoadRewardedAd() // 재시도
+                } else {
+                    Log.d(TAG, "광고 로드 재시도 횟수 초과")
+                }
+            }
+
+            override fun onAdLoaded(ad: RewardedAd) {
+                Log.d(TAG, "광고 로드 성공")
+                rewardedAd = ad
+                isAdLoading = false
+                retryCount = 0 // 성공 시 재시도 횟수 리셋
+            }
+        })
+    }
+
+    private fun retryLoadRewardedAd() {
+        // 일정 시간 후 재시도
+        Handler(Looper.getMainLooper()).postDelayed({
+            Log.d(TAG, "광고 재로드 시도 중...")
+            loadRewardedAd() // 3초 후 재시도
+        }, 3000) // 3초 후 재시도
     }
 
 
@@ -450,6 +478,7 @@ class ViewActivity : AppCompatActivity() {
                 edit.putInt("CommentCount", 0) //첫번쨰는 키값, 2번은 실제 값
                 edit.apply() //값을 저장
                 Toast.makeText(this@ViewActivity, "댓글응원권 2개 획득!", Toast.LENGTH_LONG).show()
+                loadRewardedAd()
             })
         } ?: run {
             val pref = getSharedPreferences("pref", 0)
@@ -459,40 +488,12 @@ class ViewActivity : AppCompatActivity() {
             Log.d("TAG", "The rewarded ad wasn't loaded yet.")
             Log.d(TAG, "The rewarded ad wasn't ready yet.")
 
-            // Load ad one more >.< 광고 로드 실패시 로드 한 번 더 시도하기
+            // 광고 없음 댓글권 주고 다시 광고 로드 시도하기
+            loadRewardedAd() // 광고 로드 시도
 
-
-            var adRequest = AdRequest.Builder().build()
-            RewardedAd.load(this,"ca-app-pub-8246055051187544/5488138194", adRequest, object : RewardedAdLoadCallback() {
-                override fun onAdFailedToLoad(adError: LoadAdError) {
-                    Log.d(TAG, adError.toString())
-                    rewardedAd = null
-                }
-
-                override fun onAdLoaded(ad: RewardedAd) {
-                    Log.d(TAG, "Ad was loaded.")
-                    rewardedAd = ad
-
-                }
-            })
         }
 
-
-        // Load ad one more >.< 그냥 로드 많이 되게.. 광고 봐도 로드 되고
-        var adRequest = AdRequest.Builder().build()
-        RewardedAd.load(this,"ca-app-pub-8246055051187544/2149869851", adRequest, object : RewardedAdLoadCallback() {
-            override fun onAdFailedToLoad(adError: LoadAdError) {
-                Log.d(TAG, adError.toString())
-                rewardedAd = null
-            }
-
-            override fun onAdLoaded(ad: RewardedAd) {
-                Log.d("Subreward", "Sub리워드광고 받아옴")
-                rewardedAd = ad
-            }
-        })
-
-
+        loadRewardedAd()
 
     }
 
@@ -547,43 +548,7 @@ class ViewActivity : AppCompatActivity() {
         cmViewAdapter.notifyDataSetChanged()
 
     }
-//    private fun getCommentsFromFirebase() {
-//
-//        val items = findViewById<RecyclerView>(R.id.cm_rv)
-//
-//        val adapter_list = CmViewAdapter(cmDataList)
-//
-//        items.adapter = adapter_list
-//        items.layoutManager = LinearLayoutManager(this)
-//
-//
-//
-//        // 댓글 가져와서 보여주는 부분
-//        val database = Firebase.database
-//        val myRef = database.getReference("comment")
-//
-//        myRef.addValueEventListener(object : ValueEventListener {
-//            override fun onDataChange(snapshot: DataSnapshot) {
-//                cmDataList.clear()
-//
-//                for (cmData in snapshot.children) {
-//                    if (cmData.getValue(CmData::class.java)!!.singerId == intentSingerId) {
-//                        cmDataList.add(cmData.getValue(CmData::class.java)!!)
-//
-//                    }
-//                }
-//
-//                adapter_list.notifyDataSetChanged()
-//
-//            }
-//
-//            override fun onCancelled(error: DatabaseError) {
-//                TODO("Not yet implemented")
-//            }
-//
-//        })
-//
-//    }
+
 
     private fun showEditDialog() {
         val builder = AlertDialog.Builder(this)
